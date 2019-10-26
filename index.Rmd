@@ -1,5 +1,5 @@
 ---
-title: "My personal website"
+title: "Introductory Landing Page"
 output: 
   html_document:
     toc: true
@@ -7,15 +7,13 @@ output:
     theme: cerulean
 ---
 
-# This is Ran's awesome website
+# This is Ran's website
+I am Ran An, a second-year candidate of MPH in Epidemiology. My certificate is applied biostatistics. I'd love to explore more about data science and R.
 
-#Links
-
-This is my [Github](https://github.com/ra2965) account.
-
-#Favorite picture
-Here is the beautiful scenery outside my window.
+#Favorite pictures
+I love taking photos and cooking. Here is the beautiful scenery outside my window.
 ![](images/scenery.jpeg)
 ![](images/scenery2.jpeg)
 
+#You can learn about my academic and professional experience [here](academic.html).
 

@@ -1,5 +1,5 @@
 ---
-title: "My personal website"
+title: "Academic and Professional Page"
 output: 
   html_document:
     toc: true
@@ -7,15 +7,9 @@ output:
     theme: cerulean
 ---
 
-# This is Ran's awesome website
+# This is Ran's Academic and Professional Experience
 
 #Links
 
 This is my [Github](https://github.com/ra2965) account.
-
-#Favorite picture
-Here is the beautiful scenery outside my window.
-![](images/scenery.jpeg)
-![](images/scenery2.jpeg)
-
 
