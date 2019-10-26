@@ -1,5 +1,5 @@
 ---
-title: "Resume Page"
+title: "Ran An's Resume"
 output: 
   html_document:
     toc: true
@@ -7,12 +7,29 @@ output:
     theme: cerulean
 ---
 
-#This is Ran's Academic and Professional Experience
-
 #Academic Experience
+
+###Columbia University, Mailman School of Public Health
+
+####Master of Public Health (MPH), Epidemiology
+
+Certificate in Applied Biostatistics
+
+Relevant Coursework: Data Science (R), Application of Epidemiologic Research Methods (SAS), Relational Database and SQL Programming, Applied Regression Analysis, Health Systems, Analysis of Categorical Data, Leadership Development.
+
+###Zhejiang University
+
+####Bachelor of Engineering, Food Science and Nutrition Engineering
+
+Spent one semester studying Food and Nutrition at University of Illinois in Urbana-Champaign (Fall 2016) 
+
+Participated in Occupational and Environmental Health Summer Program at McGill University (Summer 2017)
 
 
 
 #Professional Experience
 
+###Columbia University, Department of Epidemiology
+####Data Analyst Intern
 
+Managed database of over 5,000 records, analyzing epidemiologic and surveillance data on perceived risk and breast cancer,including data cleaning and advanced statistical analysis using SAS and Excel. Analyzed program statistics and created data visualization for further exploration, including graphs and charts.
