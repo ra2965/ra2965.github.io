@@ -1,5 +1,5 @@
 ---
-title: "Introductory Landing Page"
+title: "Home Page"
 output: 
   html_document:
     toc: true
@@ -11,7 +11,7 @@ output:
 I am Ran An, a second-year candidate of MPH in Epidemiology. My certificate is applied biostatistics. I'd love to explore more about data science and R.
 
 #Favorite pictures
-I love taking photos and cooking. Here is the beautiful scenery outside my window.
+I love taking photos and baking. Here is the beautiful scenery outside my window.
 ![](images/scenery.jpeg)
 ![](images/scenery2.jpeg)
 
