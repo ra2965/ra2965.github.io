@@ -7,3 +7,23 @@ output:
     theme: cerulean
 ---
 
+I will make _interactive graphics_
+
+```{r message=FALSE}
+library(tidyverse)
+library(viridis)
+library(p8105.datasets)
+library(plotly)
+```
+
+```{r}
+data("instacart")
+```
+
+```{r}
+set.seed(1)
+instacart = instacart
+  
+  
+```
+
