@@ -24,8 +24,16 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.46.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.46.1/plotly-latest.min.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -250,6 +258,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -371,6 +382,14 @@ div.tocify {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Problem2</h1>
@@ -385,8 +404,8 @@ library(p8105.datasets)
 library(plotly)
 
 data(&quot;rest_inspec&quot;)</code></pre>
-<pre class="r"><code>data = rest_inspec
-data %&gt;% 
+<p>I hope to restrict the data to only one borough in New York:</p>
+<pre class="r"><code>rest_inspec %&gt;% 
   janitor::clean_names() %&gt;% 
   group_by(boro) %&gt;% 
   summarise(n())</code></pre>
@@ -399,8 +418,41 @@ data %&gt;%
 ## 4 Missing           17
 ## 5 QUEENS         91701
 ## 6 STATEN ISLAND  13366</code></pre>
-<pre class="r"><code>bronx = data %&gt;% 
-  filter(boro == &quot;BRONX&quot;)</code></pre>
+<p>I only want to keep data in Staten Island and do some data cleaning:</p>
+<pre class="r"><code>staten_island_bakery =  rest_inspec %&gt;% 
+  filter(boro == &quot;STATEN ISLAND&quot;) %&gt;% 
+  select(dba,score,cuisine_description,inspection_date, inspection_type, street, violation_code, violation_description,grade) %&gt;% 
+  filter(
+    cuisine_description == &quot;Bakery&quot;,
+    !is.na(score)
+         ) %&gt;% 
+  mutate(restaurant = str_to_title(dba),
+         street = str_to_title(street)) </code></pre>
+<pre class="r"><code>staten_island_bakery %&gt;% 
+  group_by(restaurant) %&gt;% 
+  summarise(avg_score = mean(score)) %&gt;% 
+   mutate(restaurant = fct_reorder(restaurant,avg_score)) %&gt;% 
+  plot_ly(
+    x = ~restaurant, y = ~avg_score, color = ~restaurant, type = &quot;bar&quot;) %&gt;% 
+  layout(
+         xaxis = list(title = &#39;Bakery Names&#39;),
+         yaxis = list(title = &#39;Average Score of Each Backery&#39;),
+         showlegend = FALSE
+         )</code></pre>
+<div id="htmlwidget-a16d70e50a0c05f41f63" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a16d70e50a0c05f41f63">{"x":{"visdat":{"11ba5f0c289b":["function () ","plotlyVisDat"]},"cur_data":"11ba5f0c289b","attrs":{"11ba5f0c289b":{"x":{},"y":{},"color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"Bakery Names","type":"category","categoryorder":"array","categoryarray":["Pastry Lover's Choice","Cutest Cookies","Kiddie Cakes","Rispoli Pastry Shop","Holtermann's Bakery","Jackie's","Piece-A-Cake Bakery","Golden Pastry Shop","La Dolce Pastry Shoppe","Pasticceria Bruno Bakery & Restaurant","Alfonso's Pastry Shoppe","Renato's Pastry Shop","Mark's Bake Shoppe","Royal Crown Bakery Cafe","Pasticceria Bruno Of Greenwich Village","Moretti Bakery","Buono Bakery","Cafe Con Pan Bakery Ii","Amici Bakery"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Average Score of Each Backery"},"showlegend":false,"hovermode":"closest"},"source":"A","config":{"showSendToCloud":false},"data":[{"x":["Pastry Lover's Choice"],"y":[3.5],"type":"bar","name":"Pastry Lover's Choice","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Cutest Cookies"],"y":[5],"type":"bar","name":"Cutest Cookies","marker":{"color":"rgba(178,177,139,1)","line":{"color":"rgba(178,177,139,1)"}},"textfont":{"color":"rgba(178,177,139,1)"},"error_y":{"color":"rgba(178,177,139,1)"},"error_x":{"color":"rgba(178,177,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Kiddie Cakes"],"y":[6.8],"type":"bar","name":"Kiddie Cakes","marker":{"color":"rgba(228,156,113,1)","line":{"color":"rgba(228,156,113,1)"}},"textfont":{"color":"rgba(228,156,113,1)"},"error_y":{"color":"rgba(228,156,113,1)"},"error_x":{"color":"rgba(228,156,113,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Rispoli Pastry Shop"],"y":[9.44444444444444],"type":"bar","name":"Rispoli Pastry Shop","marker":{"color":"rgba(238,145,116,1)","line":{"color":"rgba(238,145,116,1)"}},"textfont":{"color":"rgba(238,145,116,1)"},"error_y":{"color":"rgba(238,145,116,1)"},"error_x":{"color":"rgba(238,145,116,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Holtermann's Bakery"],"y":[10],"type":"bar","name":"Holtermann's Bakery","marker":{"color":"rgba(201,153,157,1)","line":{"color":"rgba(201,153,157,1)"}},"textfont":{"color":"rgba(201,153,157,1)"},"error_y":{"color":"rgba(201,153,157,1)"},"error_x":{"color":"rgba(201,153,157,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Jackie's"],"y":[10],"type":"bar","name":"Jackie's","marker":{"color":"rgba(150,159,197,1)","line":{"color":"rgba(150,159,197,1)"}},"textfont":{"color":"rgba(150,159,197,1)"},"error_y":{"color":"rgba(150,159,197,1)"},"error_x":{"color":"rgba(150,159,197,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Piece-A-Cake Bakery"],"y":[13.2307692307692],"type":"bar","name":"Piece-A-Cake Bakery","marker":{"color":"rgba(175,154,200,1)","line":{"color":"rgba(175,154,200,1)"}},"textfont":{"color":"rgba(175,154,200,1)"},"error_y":{"color":"rgba(175,154,200,1)"},"error_x":{"color":"rgba(175,154,200,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Golden Pastry Shop"],"y":[14.9583333333333],"type":"bar","name":"Golden Pastry Shop","marker":{"color":"rgba(209,146,197,1)","line":{"color":"rgba(209,146,197,1)"}},"textfont":{"color":"rgba(209,146,197,1)"},"error_y":{"color":"rgba(209,146,197,1)"},"error_x":{"color":"rgba(209,146,197,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["La Dolce Pastry Shoppe"],"y":[15.0625],"type":"bar","name":"La Dolce Pastry Shoppe","marker":{"color":"rgba(226,148,184,1)","line":{"color":"rgba(226,148,184,1)"}},"textfont":{"color":"rgba(226,148,184,1)"},"error_y":{"color":"rgba(226,148,184,1)"},"error_x":{"color":"rgba(226,148,184,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Pasticceria Bruno Bakery & Restaurant"],"y":[17.4736842105263],"type":"bar","name":"Pasticceria Bruno Bakery & Restaurant","marker":{"color":"rgba(205,181,144,1)","line":{"color":"rgba(205,181,144,1)"}},"textfont":{"color":"rgba(205,181,144,1)"},"error_y":{"color":"rgba(205,181,144,1)"},"error_x":{"color":"rgba(205,181,144,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Alfonso's Pastry Shoppe"],"y":[18.1891891891892],"type":"bar","name":"Alfonso's Pastry Shoppe","marker":{"color":"rgba(176,209,99,1)","line":{"color":"rgba(176,209,99,1)"}},"textfont":{"color":"rgba(176,209,99,1)"},"error_y":{"color":"rgba(176,209,99,1)"},"error_x":{"color":"rgba(176,209,99,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Renato's Pastry Shop"],"y":[18.4333333333333],"type":"bar","name":"Renato's Pastry Shop","marker":{"color":"rgba(193,217,75,1)","line":{"color":"rgba(193,217,75,1)"}},"textfont":{"color":"rgba(193,217,75,1)"},"error_y":{"color":"rgba(193,217,75,1)"},"error_x":{"color":"rgba(193,217,75,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Mark's Bake Shoppe"],"y":[19],"type":"bar","name":"Mark's Bake Shoppe","marker":{"color":"rgba(227,217,62,1)","line":{"color":"rgba(227,217,62,1)"}},"textfont":{"color":"rgba(227,217,62,1)"},"error_y":{"color":"rgba(227,217,62,1)"},"error_x":{"color":"rgba(227,217,62,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Royal Crown Bakery Cafe"],"y":[19.2],"type":"bar","name":"Royal Crown Bakery Cafe","marker":{"color":"rgba(254,216,56,1)","line":{"color":"rgba(254,216,56,1)"}},"textfont":{"color":"rgba(254,216,56,1)"},"error_y":{"color":"rgba(254,216,56,1)"},"error_x":{"color":"rgba(254,216,56,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Pasticceria Bruno Of Greenwich Village"],"y":[23.3333333333333],"type":"bar","name":"Pasticceria Bruno Of Greenwich Village","marker":{"color":"rgba(245,207,100,1)","line":{"color":"rgba(245,207,100,1)"}},"textfont":{"color":"rgba(245,207,100,1)"},"error_y":{"color":"rgba(245,207,100,1)"},"error_x":{"color":"rgba(245,207,100,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Moretti Bakery"],"y":[23.9444444444444],"type":"bar","name":"Moretti Bakery","marker":{"color":"rgba(234,199,134,1)","line":{"color":"rgba(234,199,134,1)"}},"textfont":{"color":"rgba(234,199,134,1)"},"error_y":{"color":"rgba(234,199,134,1)"},"error_x":{"color":"rgba(234,199,134,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Buono Bakery"],"y":[26.25],"type":"bar","name":"Buono Bakery","marker":{"color":"rgba(219,192,155,1)","line":{"color":"rgba(219,192,155,1)"}},"textfont":{"color":"rgba(219,192,155,1)"},"error_y":{"color":"rgba(219,192,155,1)"},"error_x":{"color":"rgba(219,192,155,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Cafe Con Pan Bakery Ii"],"y":[27.1509433962264],"type":"bar","name":"Cafe Con Pan Bakery Ii","marker":{"color":"rgba(200,186,167,1)","line":{"color":"rgba(200,186,167,1)"}},"textfont":{"color":"rgba(200,186,167,1)"},"error_y":{"color":"rgba(200,186,167,1)"},"error_x":{"color":"rgba(200,186,167,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Amici Bakery"],"y":[29.7179487179487],"type":"bar","name":"Amici Bakery","marker":{"color":"rgba(179,179,179,1)","line":{"color":"rgba(179,179,179,1)"}},"textfont":{"color":"rgba(179,179,179,1)"},"error_y":{"color":"rgba(179,179,179,1)"},"error_x":{"color":"rgba(179,179,179,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>staten_island_bakery %&gt;% 
+  group_by(street) %&gt;% 
+  summarise(avg_score_street = mean(score)) %&gt;% 
+   mutate(street = fct_reorder(street,avg_score_street)) %&gt;% 
+  plot_ly(
+    x = ~street, y = ~avg_score_street, color = ~street, type = &quot;scatter&quot;) %&gt;% 
+  layout(
+         xaxis = list(title = &#39;Steet Names&#39;),
+         yaxis = list(title = &#39;Average Score of Bakeries in Each Street&#39;),
+          showlegend = FALSE)</code></pre>
+<div id="htmlwidget-c3280891c8a93f61487f" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c3280891c8a93f61487f">{"x":{"visdat":{"11ba1981cc34":["function () ","plotlyVisDat"]},"cur_data":"11ba1981cc34","attrs":{"11ba1981cc34":{"x":{},"y":{},"color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"Steet Names","type":"category","categoryorder":"array","categoryarray":["Van Duzer St","Hylan Blvd","Amboy Road","Bay Street","New Dorp Lane","Corson Avenue","Rossville Avenue","Richmond Road","Forest Avenue","Victory Boulevard","Hylan Boulevard","Arthur Kill Road","Port Richmond Avenue"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Average Score of Bakeries in Each Street"},"showlegend":false,"hovermode":"closest"},"source":"A","config":{"showSendToCloud":false},"data":[{"x":["Van Duzer St"],"y":[3.5],"type":"scatter","mode":"markers","name":"Van Duzer St","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Hylan Blvd"],"y":[5],"type":"scatter","mode":"markers","name":"Hylan Blvd","marker":{"color":"rgba(204,167,126,1)","line":{"color":"rgba(204,167,126,1)"}},"textfont":{"color":"rgba(204,167,126,1)"},"error_y":{"color":"rgba(204,167,126,1)"},"error_x":{"color":"rgba(204,167,126,1)"},"line":{"color":"rgba(204,167,126,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Amboy Road"],"y":[9.58823529411765],"type":"scatter","mode":"markers","name":"Amboy Road","marker":{"color":"rgba(238,145,116,1)","line":{"color":"rgba(238,145,116,1)"}},"textfont":{"color":"rgba(238,145,116,1)"},"error_y":{"color":"rgba(238,145,116,1)"},"error_x":{"color":"rgba(238,145,116,1)"},"line":{"color":"rgba(238,145,116,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Bay Street"],"y":[9.66666666666667],"type":"scatter","mode":"markers","name":"Bay Street","marker":{"color":"rgba(178,156,177,1)","line":{"color":"rgba(178,156,177,1)"}},"textfont":{"color":"rgba(178,156,177,1)"},"error_y":{"color":"rgba(178,156,177,1)"},"error_x":{"color":"rgba(178,156,177,1)"},"line":{"color":"rgba(178,156,177,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["New Dorp Lane"],"y":[13.2307692307692],"type":"scatter","mode":"markers","name":"New Dorp Lane","marker":{"color":"rgba(175,154,200,1)","line":{"color":"rgba(175,154,200,1)"}},"textfont":{"color":"rgba(175,154,200,1)"},"error_y":{"color":"rgba(175,154,200,1)"},"error_x":{"color":"rgba(175,154,200,1)"},"line":{"color":"rgba(175,154,200,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Corson Avenue"],"y":[14.9583333333333],"type":"scatter","mode":"markers","name":"Corson Avenue","marker":{"color":"rgba(224,140,196,1)","line":{"color":"rgba(224,140,196,1)"}},"textfont":{"color":"rgba(224,140,196,1)"},"error_y":{"color":"rgba(224,140,196,1)"},"error_x":{"color":"rgba(224,140,196,1)"},"line":{"color":"rgba(224,140,196,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Rossville Avenue"],"y":[15.0625],"type":"scatter","mode":"markers","name":"Rossville Avenue","marker":{"color":"rgba(205,181,144,1)","line":{"color":"rgba(205,181,144,1)"}},"textfont":{"color":"rgba(205,181,144,1)"},"error_y":{"color":"rgba(205,181,144,1)"},"error_x":{"color":"rgba(205,181,144,1)"},"line":{"color":"rgba(205,181,144,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Richmond Road"],"y":[19],"type":"scatter","mode":"markers","name":"Richmond Road","marker":{"color":"rgba(174,216,81,1)","line":{"color":"rgba(174,216,81,1)"}},"textfont":{"color":"rgba(174,216,81,1)"},"error_y":{"color":"rgba(174,216,81,1)"},"error_x":{"color":"rgba(174,216,81,1)"},"line":{"color":"rgba(174,216,81,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Forest Avenue"],"y":[19.6417910447761],"type":"scatter","mode":"markers","name":"Forest Avenue","marker":{"color":"rgba(227,217,62,1)","line":{"color":"rgba(227,217,62,1)"}},"textfont":{"color":"rgba(227,217,62,1)"},"error_y":{"color":"rgba(227,217,62,1)"},"error_x":{"color":"rgba(227,217,62,1)"},"line":{"color":"rgba(227,217,62,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Victory Boulevard"],"y":[21.76],"type":"scatter","mode":"markers","name":"Victory Boulevard","marker":{"color":"rgba(250,212,80,1)","line":{"color":"rgba(250,212,80,1)"}},"textfont":{"color":"rgba(250,212,80,1)"},"error_y":{"color":"rgba(250,212,80,1)"},"error_x":{"color":"rgba(250,212,80,1)"},"line":{"color":"rgba(250,212,80,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Hylan Boulevard"],"y":[23.5647058823529],"type":"scatter","mode":"markers","name":"Hylan Boulevard","marker":{"color":"rgba(234,199,134,1)","line":{"color":"rgba(234,199,134,1)"}},"textfont":{"color":"rgba(234,199,134,1)"},"error_y":{"color":"rgba(234,199,134,1)"},"error_x":{"color":"rgba(234,199,134,1)"},"line":{"color":"rgba(234,199,134,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Arthur Kill Road"],"y":[27.0888888888889],"type":"scatter","mode":"markers","name":"Arthur Kill Road","marker":{"color":"rgba(209,189,161,1)","line":{"color":"rgba(209,189,161,1)"}},"textfont":{"color":"rgba(209,189,161,1)"},"error_y":{"color":"rgba(209,189,161,1)"},"error_x":{"color":"rgba(209,189,161,1)"},"line":{"color":"rgba(209,189,161,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["Port Richmond Avenue"],"y":[27.1509433962264],"type":"scatter","mode":"markers","name":"Port Richmond Avenue","marker":{"color":"rgba(179,179,179,1)","line":{"color":"rgba(179,179,179,1)"}},"textfont":{"color":"rgba(179,179,179,1)"},"error_y":{"color":"rgba(179,179,179,1)"},"error_x":{"color":"rgba(179,179,179,1)"},"line":{"color":"rgba(179,179,179,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 
 
 
@@ -437,6 +489,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {

@@ -2,6 +2,7 @@
 title: "Problem2"
 output: 
   html_document:
+    code_folding : hide
     toc: true
     toc_float: true
     theme: cerulean
@@ -19,27 +20,61 @@ data("rest_inspec")
 
 ```
 
-
+I hope to restrict the data to only one borough in New York:
 ```{r}
-data = rest_inspec
-data %>% 
+rest_inspec %>% 
   janitor::clean_names() %>% 
   group_by(boro) %>% 
   summarise(n())
 ```
+I only want to keep data in Staten Island and do some data cleaning:
+```{r message=FALSE}
 
-```{r}
-bronx = data %>% 
-  filter(boro == "BRONX")
+staten_island_bakery =  rest_inspec %>% 
+  filter(boro == "STATEN ISLAND") %>% 
+  select(dba,score,cuisine_description,inspection_date, inspection_type, street, violation_code, violation_description,grade) %>% 
+  filter(
+    cuisine_description == "Bakery",
+    !is.na(score)
+         ) %>% 
+  mutate(restaurant = str_to_title(dba),
+         street = str_to_title(street)) 
+
+
+
+```
+
+
+```{r warning = FALSE,message=FALSE}
+staten_island_bakery %>% 
+  group_by(restaurant) %>% 
+  summarise(avg_score = mean(score)) %>% 
+   mutate(restaurant = fct_reorder(restaurant,avg_score)) %>% 
+  plot_ly(
+    x = ~restaurant, y = ~avg_score, color = ~restaurant, type = "bar") %>% 
+  layout(
+         xaxis = list(title = 'Bakery Names'),
+         yaxis = list(title = 'Average Score of Each Backery'),
+         showlegend = FALSE
+         )
 
 ```
 
 
 
+```{r warning = FALSE,message=FALSE}
+staten_island_bakery %>% 
+  group_by(street) %>% 
+  summarise(avg_score_street = mean(score)) %>% 
+   mutate(street = fct_reorder(street,avg_score_street)) %>% 
+  plot_ly(
+    x = ~street, y = ~avg_score_street, color = ~street, type = "scatter") %>% 
+  layout(
+         xaxis = list(title = 'Steet Names'),
+         yaxis = list(title = 'Average Score of Bakeries in Each Street'),
+          showlegend = FALSE)
 
-
-
-
+```
 
 
 
