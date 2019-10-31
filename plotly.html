@@ -382,27 +382,25 @@ div.tocify {
 <pre class="r"><code>library(tidyverse)
 library(viridis)
 library(p8105.datasets)
-library(plotly)</code></pre>
-<pre class="r"><code>data(&quot;instacart&quot;)</code></pre>
-<pre class="r"><code> order_df = instacart %&gt;% 
-  group_by(aisle) %&gt;% 
-  summarize(n = n()) %&gt;% 
-  filter(n &gt; 16000) %&gt;% 
-  mutate(aisle = as.factor(aisle), 
-         aisle = forcats::fct_reorder(aisle, n))
+library(plotly)
 
-  ggplot(order_df,aes(x = aisle, y = n)) + 
-    geom_point(alpha = 0.6,na.rm = TRUE ) +
-    labs(
-    title = &quot;The number of items ordered in each aisle&quot;,
-    x = &quot;aisle&quot;,
-    y = &quot;number of items&quot;) +
-    scale_y_continuous(
-    breaks  = c(20000, 40000,  60000,  80000,  100000, 120000, 140000, 160000), 
-    limits = c(9000, 160000)
-    ) + 
-    theme(axis.text.x = element_text(angle = 60, hjust = 1))</code></pre>
-<p><img src="plotly_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+data(&quot;rest_inspec&quot;)</code></pre>
+<pre class="r"><code>data = rest_inspec
+data %&gt;% 
+  janitor::clean_names() %&gt;% 
+  group_by(boro) %&gt;% 
+  summarise(n())</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   boro           `n()`
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 BRONX          34737
+## 2 BROOKLYN       99809
+## 3 MANHATTAN     157954
+## 4 Missing           17
+## 5 QUEENS         91701
+## 6 STATEN ISLAND  13366</code></pre>
+<pre class="r"><code>bronx = data %&gt;% 
+  filter(boro == &quot;BRONX&quot;)</code></pre>
 
 
 
