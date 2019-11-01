@@ -30,23 +30,31 @@ rest_inspec %>%
 I only want to keep data in Staten Island and do some data cleaning:
 ```{r message=FALSE}
 
-staten_island_bakery =  rest_inspec %>% 
-  filter(boro == "STATEN ISLAND") %>% 
-  select(dba,score,cuisine_description,inspection_date, inspection_type, street, violation_code, violation_description,grade) %>% 
+bakery =  rest_inspec %>% 
+    na.omit() %>%
+  select(dba,score,cuisine_description,inspection_date, street, violation_code, violation_description,grade, grade_date, boro) %>%
+  mutate(inspection_date = as.Date(inspection_date),
+         grade_date = as.Date(grade_date)) %>% 
+  separate(inspection_date,c('inspec_year', 'inspec_month', 'inspec_day'), sep = '-') %>% 
+  separate(grade_date, c('grade_year', 'grade_month', 'grade_day'), sep = '-') %>% 
+  select(-grade_day,-grade_month,-inspec_month,-inspec_day) %>% 
   filter(
     cuisine_description == "Bakery",
-    !is.na(score)
+    !is.na(score),
+    !is.na(grade),
+    grade %in% c('A','B','C'),
+    inspec_year == '2017'
          ) %>% 
   mutate(restaurant = str_to_title(dba),
          street = str_to_title(street)) 
 
-
-
 ```
 
-
+I want to know the mean score of bakeries in Staten Island:
 ```{r warning = FALSE,message=FALSE}
-staten_island_bakery %>% 
+
+bakery %>% 
+  filter(boro == "STATEN ISLAND") %>% 
   group_by(restaurant) %>% 
   summarise(avg_score = mean(score)) %>% 
    mutate(restaurant = fct_reorder(restaurant,avg_score)) %>% 
@@ -63,7 +71,8 @@ staten_island_bakery %>%
 
 
 ```{r warning = FALSE,message=FALSE}
-staten_island_bakery %>% 
+bakery %>% 
+  filter(boro == "STATEN ISLAND") %>% 
   group_by(street) %>% 
   summarise(avg_score_street = mean(score)) %>% 
    mutate(street = fct_reorder(street,avg_score_street)) %>% 
@@ -76,5 +85,14 @@ staten_island_bakery %>%
 
 ```
 
+```{r warning = FALSE,message=FALSE}
+bakery %>% 
+  plot_ly(y = ~score, x = ~boro, color = ~boro, type = "box",
+          colors = "Set1")  %>% 
+  layout(
+         xaxis = list(title = 'Steet Names'),
+         yaxis = list(title = 'Score of Bakeries in Each Street'),
+          showlegend = FALSE)
+```
 
 
