@@ -20,15 +20,8 @@ data("rest_inspec")
 
 ```
 
-I hope to restrict the data to only one borough in New York:
-```{r}
-rest_inspec %>% 
-  janitor::clean_names() %>% 
-  group_by(boro) %>% 
-  summarise(n())
-```
-I only want to keep data in Staten Island and do some data cleaning:
-```{r message=FALSE}
+I only want to keep data in 2017 and did some relevant data cleaning, including omitting missing data, stricting data only in 2017.
+```{r message=FALSE, warning=FALSE}
 
 bakery =  rest_inspec %>% 
     na.omit() %>%
@@ -50,7 +43,7 @@ bakery =  rest_inspec %>%
 
 ```
 
-I want to know the mean score of bakeries in Staten Island:
+I want to know the mean score of bakeries in Staten Island in 2017:
 ```{r warning = FALSE,message=FALSE}
 
 bakery %>% 
@@ -69,7 +62,7 @@ bakery %>%
 ```
 
 
-
+I want to know the mean score of bakeries in each street in Staten Island in 2017:
 ```{r warning = FALSE,message=FALSE}
 bakery %>% 
   filter(boro == "STATEN ISLAND") %>% 
@@ -85,6 +78,7 @@ bakery %>%
 
 ```
 
+I want to know the score distribution of bakeries in each borough in 2017: 
 ```{r warning = FALSE,message=FALSE}
 bakery %>% 
   plot_ly(y = ~score, x = ~boro, color = ~boro, type = "box",
