@@ -1,0 +1,98 @@
+---
+title: "Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(viridis)
+library(p8105.datasets)
+library(plotly)
+
+data("rest_inspec")
+```
+
+Data cleaning:
+```{r warning = FALSE,message=FALSE}
+bakery =  rest_inspec %>% 
+    na.omit() %>%
+  select(dba,score,cuisine_description,inspection_date, street, violation_code, violation_description,grade, grade_date, boro) %>%
+  mutate(inspection_date = as.Date(inspection_date),
+         grade_date = as.Date(grade_date)) %>% 
+  separate(inspection_date,c('inspec_year', 'inspec_month', 'inspec_day'), sep = '-') %>% 
+  separate(grade_date, c('grade_year', 'grade_month', 'grade_day'), sep = '-') %>% 
+  select(-grade_day,-grade_month,-inspec_month,-inspec_day) %>% 
+  filter(
+    cuisine_description == "Bakery",
+    !is.na(score),
+    !is.na(grade),
+    grade %in% c('A','B','C'),
+    inspec_year == '2017'
+         ) %>% 
+  mutate(restaurant = str_to_title(dba),
+         street = str_to_title(street)) 
+
+```
+
+
+
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Chart A:Average Score of bakeries in Staten Island in 2017
+
+```{r warning = FALSE,message=FALSE}
+bakery %>% 
+  filter(boro == "STATEN ISLAND") %>% 
+  group_by(restaurant) %>% 
+  summarise(avg_score = mean(score)) %>% 
+   mutate(restaurant = fct_reorder(restaurant,avg_score)) %>% 
+  plot_ly(
+    x = ~restaurant, y = ~avg_score, color = ~restaurant, type = "bar") %>% 
+  layout(
+         xaxis = list(title = 'Bakery Names'),
+         yaxis = list(title = 'Average Score of Each Backery'),
+         showlegend = FALSE
+         )
+
+
+```
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Chart B:Average Score of bakeries in each Street in Staten Island in 2017
+
+```{r warning = FALSE,message=FALSE}
+bakery %>% 
+  filter(boro == "STATEN ISLAND") %>% 
+  group_by(street) %>% 
+  summarise(avg_score_street = mean(score)) %>% 
+   mutate(street = fct_reorder(street,avg_score_street)) %>% 
+  plot_ly(
+    x = ~street, y = ~avg_score_street, color = ~street, type = "scatter") %>% 
+  layout(
+         xaxis = list(title = 'Steet Names'),
+         yaxis = list(title = 'Average Score of Bakeries in Each Street'),
+          showlegend = FALSE)
+
+```
+
+### Chart C:Distribution of scores in different boroughs in 2017
+
+```{r warning = FALSE,message=FALSE}
+bakery %>% 
+  plot_ly(y = ~score, x = ~boro, color = ~boro, type = "box",
+          colors = "Set1")  %>% 
+  layout(
+         xaxis = list(title = 'Boroughs'),
+         yaxis = list(title = 'Score of Bakeries in Each Borough'),
+          showlegend = FALSE)
+```
+
